@@ -8,6 +8,10 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.13.3"
+    "crypto": "0.0.3",
+    "express": "^4.13.3",
+    "nodemon": "^1.10.2",
+    "qr-image": "*",
+    "request": "*"
   }
 }
