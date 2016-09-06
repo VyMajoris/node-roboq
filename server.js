@@ -38,7 +38,7 @@ app.get('/start', function (req, res) {
   res.send( qr.imageSync(hash, { size: 10}));
 });
 
-app.post('/get', function (req, res) {
+app.get('/get', function (req, res) {
     var result = fireGet(roboQRef)
     console.log(result)
 });
