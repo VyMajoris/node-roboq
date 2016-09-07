@@ -35,6 +35,7 @@ app.get('/start', function (req, res) {
 });
 
 app.get('/getTicket', function (req, res) {
+    console.log(hash)
     res.send(hash);
     queueSize++;
     genAndSaveHash();
