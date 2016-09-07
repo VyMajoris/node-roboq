@@ -61,8 +61,8 @@ app.get('/getTicket', function (req, res) {
 
 app.get('/forfeitTicket', function (req, res) {
     
-    removeHash( req.body.queuePos, req.body.hash)
-    queueSize++;
+    console.log( req.body.queuePos, req.body.hash)
+    queueSize--
     res.json({'hash':hash, 'queuePos': queueSize});
     genAndSaveHash();
 });
