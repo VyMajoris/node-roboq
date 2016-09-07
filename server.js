@@ -59,7 +59,7 @@ app.get('/getTicket', function (req, res) {
 });
 
 
-app.get('/forfeitTicket', function (req, res) {
+app.post('/forfeitTicket', function (req, res) {
     console.log("forfeitTicketforfeitTicketforfeitTicketforfeitTicket")
     
     console.log( req.body.queuePos, req.body.hash)
