@@ -21,7 +21,7 @@ const fireapp = firebase.initializeApp({
 var database = firebase.database();
 var roboQRef = firebase.database().ref('estbXYZ/fila')
 var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
-var hash;
+var hash = "";
 var inboundHash;
 
 function genAndSaveHash() {
