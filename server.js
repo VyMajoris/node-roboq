@@ -24,8 +24,24 @@ var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
 var hash = "";
 var inboundHash;
 
-function genAndSaveHash() {
+
+function genHash(){
     hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
+    return hash;
+}
+
+function saveHash() {
+    
+    roboQQueuersRef.push({'hash': hash, 'pos': queueSize}).then(function(snapshot) {
+      // The Promise was "fulfilled" (it succeeded).
+      console.log('PROMISEEEE',snapshot.val());
+    }, function(error) {
+      // The Promise was rejected.
+      console.error(error);
+    });
+    
+}
+function removeHash(queuePos, hash) {
     roboQQueuersRef.push({'hash': hash, 'pos': queueSize})
     return hash;
 }
@@ -35,9 +51,19 @@ app.get('/start', function (req, res) {
 });
 
 app.get('/getTicket', function (req, res) {
-    console.log(hash)
-    res.json({'hash':hash});
     queueSize++;
+    genHash()
+    saveHash();
+    res.json({'hash':hash, 'queuePos': queueSize});
+    
+});
+
+
+app.get('/forfeitTicket', function (req, res) {
+    
+    removeHash( req.body.queuePos, req.body.hash)
+    queueSize++;
+    res.json({'hash':hash, 'queuePos': queueSize});
     genAndSaveHash();
 });
 
