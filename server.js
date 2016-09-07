@@ -26,7 +26,7 @@ var inboundHash;
 
 function genAndSaveHash() {
     hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
-    roboQQueuersRef.push({'hash': hash(), 'pos': queueSize})
+    roboQQueuersRef.push({'hash': hash, 'pos': queueSize})
     return hash;
 }
 
