@@ -32,17 +32,12 @@ function genHash(){
 
 function saveHash() {
     
-    roboQQueuersRef.push({'hash': hash, 'pos': queueSize}).then(function(snapshot) {
-      // The Promise was "fulfilled" (it succeeded).
-      console.log('PROMISEEEE',snapshot.val());
-    }, function(error) {
-      // The Promise was rejected.
-      console.error(error);
-    });
+    roboQQueuersRef.push({'hash': hash, 'pos': queueSize})
     
 }
 function removeHash(queuePos, hash) {
-    roboQQueuersRef.push({'hash': hash, 'pos': queueSize})
+    firebase.database().ref('estbXYZ/queue/queuers')
+    roboQQueuersRef.remove({'hash': hash, 'pos': queueSize})
     return hash;
 }
 
@@ -60,13 +55,13 @@ app.get('/getTicket', function (req, res) {
 
 
 app.post('/forfeitTicket', function (req, res) {
-    console.log("forfeitTicketforfeitTicketforfeitTicketforfeitTicket")
+
     
     console.log( req.body.queuePos, req.body.hash)
-    
+    removeHash();
     queueSize--
     res.json({'hash':hash, 'queuePos': queueSize});
-    genAndSaveHash();
+    
 });
 
 app.post('/auth', function (req, res) {
