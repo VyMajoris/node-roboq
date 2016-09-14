@@ -71,7 +71,11 @@ app.post('/auth', function (req, res) {
     inboundHash = req.body.hash;
     
     roboQRef.once('value', function (snapshot) {
-        console.log('callback', snapshot.val().hash)
+        console.log('snapshot - ', snapshot.val().hash)
+        console.log('inboundhash - ', inboundHash)
+        console.log('inboundhash 2 - ', JSON.stringify(inboundHash))
+        
+        
         if (inboundHash == snapshot.val().hash) {
             queueSize--
             console.log("AAAAAAAAAA")
