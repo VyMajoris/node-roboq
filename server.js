@@ -24,61 +24,67 @@ var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
 var hash = "";
 var inboundHash;
 
-
-function genHash(){
+function genHash() {
     hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
     return hash;
 }
 
 function saveHash() {
-    
-    roboQQueuersRef.push({'hash': hash, 'pos': queueSize})
-    
+    roboQQueuersRef.push({
+        'hash': hash
+        , 'pos': queueSize
+    })
 }
+
 function removeHash(queuePos, hash) {
     firebase.database().ref('estbXYZ/queue/queuers')
-    roboQQueuersRef.remove({'hash': hash, 'pos': queueSize})
+    roboQQueuersRef.remove({
+        'hash': hash
+        , 'pos': queueSize
+    })
     return hash;
 }
-
 app.get('/start', function (req, res) {
-     hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
+    hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
 });
-
 app.get('/getTicket', function (req, res) {
     queueSize++;
     genHash()
     saveHash();
-    res.json({'hash':hash, 'queuePos': queueSize});
-    
+    res.json({
+        'hash': hash
+        , 'queuePos': queueSize
+    });
 });
-
-
 app.post('/forfeitTicket', function (req, res) {
-
-    
-    console.log( req.body.queuePos, req.body.hash)
+    console.log(req.body.queuePos, req.body.hash)
     removeHash();
     queueSize--
-    res.json({'hash':hash, 'queuePos': queueSize});
-    
+    res.json({
+        'hash': hash
+        , 'queuePos': queueSize
+    });
 });
 
 app.post('/auth', function (req, res) {
     console.log(req)
     inboundHash = req.body.hash;
-    roboQRef.once('value', performAuth);
+    
+    roboQRef.once('value', function (snapshot) {
+        console.log('callback', snapshot.val().hash)
+        if (inboundHash == snapshot.val().hash) {
+            queueSize--
+            console.log("AAAAAAAAAA")
+            res.sendStatus(200)
+        }
+        else {
+            console.log("bbbbbbbbb")
+            res.sendStatus(303)
+        }
+    });
+    
 });
 
-function performAuth(snapshot) {
-    console.log('callback', snapshot.val().hash)
-    if (inboundHash == snapshot.val().hash) {
-        queueSize--
-        console.log("AAAAAAAAAA")
-    }
-    else {
-        console.log("bbbbbbbbb")
-    }
-}
+
 app.listen(PORT);
 console.log('Running on http://localhost:' + PORT);
