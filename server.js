@@ -67,7 +67,7 @@ app.post('/forfeitTicket', function (req, res) {
 });
 
 app.post('/auth', function (req, res) {
-    console.log(req)
+    console.log(req.body)
     inboundHash = req.body.hash;
     
     roboQRef.once('value', function (snapshot) {
