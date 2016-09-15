@@ -29,12 +29,30 @@ function genHash() {
     return hash;
 }
 
-function saveHash() {
+function saveHashQueuers() {
     roboQQueuersRef.push({
         'hash': hash
         , 'pos': queueSize
     })
 }
+
+
+
+
+function updateCurrentHash() {
+    roboQRef.put({
+        'hash': genHash()
+        , 'queueSize': queueSize
+    })
+}
+
+
+roboQRef.on("value", function(snapshot) {
+  console.log("ON CHANGE",snapshot.val());
+}, function (errorObject) {
+  console.log("The read failed: " + errorObject.code);
+});
+
 
 function removeHash(queuePos, hash) {
     firebase.database().ref('estbXYZ/queue/queuers')
@@ -49,8 +67,8 @@ app.get('/start', function (req, res) {
 });
 app.get('/getTicket', function (req, res) {
     queueSize++;
-    genHash()
-    saveHash();
+    
+    roboQQueuersRef();
     res.json({
         'hash': hash
         , 'queuePos': queueSize
