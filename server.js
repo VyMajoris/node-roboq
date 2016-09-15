@@ -48,7 +48,7 @@ function updateCurrentHash() {
 
 
 roboQRef.on("value", function(snapshot) {
-  console.log("ON CHANGE",snapshot.val());
+  console.log("ON CHANGE",snapshot.val().hash);
 }, function (errorObject) {
   console.log("The read failed: " + errorObject.code);
 });
