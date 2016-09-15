@@ -35,8 +35,8 @@ function saveHashQueuers() {
         'hash': hash
         , 'pos': queueSize
     })
-    console.log('TESTTT', test)
-    return test
+    console.log('TESTTT', test.key)
+    return test.key
 }
 
 function updateCurrentHash() {
