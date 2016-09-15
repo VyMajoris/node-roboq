@@ -67,12 +67,11 @@ app.get('/start', function (req, res) {
 });
 app.get('/getTicket', function (req, res) {
     queueSize++;
-    
-    roboQQueuersRef();
     res.json({
         'hash': hash
         , 'queuePos': queueSize
     });
+    updateCurrentHash()
 });
 app.post('/forfeitTicket', function (req, res) {
     console.log(req.body.queuePos, req.body.hash)
