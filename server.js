@@ -49,16 +49,17 @@ function refreshQueuersPositions() {
     });
 }
 app.get('/getTicket', function (req, res) {
-    var queueSize = roboQQueuersRef.once("value").then(function (snapshot) {
-        return snapshot.numChildren()
-    });
-    console.log("QUEUE SIZE::;")
-    console.log(queueSize)
-    var queuePosID = roboQQueuersRef.push({
-        'pos': queueSize + 1
-    }).key
-    res.json({
-        'queuePosID': queuePosID
+    roboQQueuersRef.once("value").then(function (snapshot) {
+        console.log("QUEUE SIZE::;")
+        console.log(snapshot.numChildren())
+        var queuePosID = roboQQueuersRef.push({
+            'pos': queueSize + 1
+        }, function (pushID) {
+            console.log(`pushID`, pushID)
+            res.json({
+                'queuePosID': pushID
+            });
+        })
     });
 });
 app.post('/forfeitTicket', function (req, res) {
