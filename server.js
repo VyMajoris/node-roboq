@@ -23,6 +23,7 @@ var roboQRef = firebase.database().ref('estbXYZ/fila')
 var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
 var hash = "";
 var inboundHash;
+var started = false;
 
 function genHash() {
     hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
@@ -30,14 +31,11 @@ function genHash() {
 }
 
 function saveHashQueuers() {
-    roboQQueuersRef.push({
+    return roboQQueuersRef.push({
         'hash': hash
         , 'pos': queueSize
     })
 }
-
-
-
 
 function updateCurrentHash() {
     roboQRef.set({
@@ -45,31 +43,53 @@ function updateCurrentHash() {
         , 'queueSize': queueSize
     })
 }
-
-
-roboQRef.on("value", function(snapshot) {
-  console.log("ON CHANGE",snapshot.val().hash);
+roboQRef.on("value", function (snapshot) {
+    console.log("ON CHANGE", snapshot.val().hash);
 }, function (errorObject) {
-  console.log("The read failed: " + errorObject.code);
+    console.log("The read failed: " + errorObject.code);
 });
 
-
-function removeHash(queuePos, hash) {
-    firebase.database().ref('estbXYZ/queue/queuers')
-    roboQQueuersRef.remove({
-        'hash': hash
-        , 'pos': queueSize
-    })
-    return hash;
+function removeQueuer(queuePosID) {
+    roboQQueuersRef.child(queuePosID).remove(onComplete)
+    var onComplete = function (error) {
+        if (error) {
+            console.log("REMOVING FAIL")
+            return false
+        }
+        else {
+            console.log("REMOVING DONE")
+            return true
+        }
+    };
+    return onComplete
 }
-app.get('/start', function (req, res) {
-    hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
+
+function start() {
+    if (!started) {
+        started = true;
+        hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
+    }
 });
+
+function refreshQueuersPositions() {
+    roboQQueuersRef.once("value").then(function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+            // key will be "ada" the first time and "alan" the second time
+            var key = childSnapshot.key;
+            // childData will be the actual contents of the child
+            var childData = childSnapshot.val();
+        });
+    });
+}
 app.get('/getTicket', function (req, res) {
+    if (!started) {
+        start()
+    }
     queueSize++;
     res.json({
         'hash': hash
         , 'queuePos': queueSize
+        , 'queuePosID': saveHashQueuers()
     });
     updateCurrentHash()
 });
@@ -77,35 +97,41 @@ app.post('/forfeitTicket', function (req, res) {
     console.log(req.body.queuePos, req.body.hash)
     removeHash();
     queueSize--
+    refreshQueuersPositions().
     res.json({
         'hash': hash
         , 'queuePos': queueSize
     });
 });
-
 app.post('/auth', function (req, res) {
+    queuePosID = req.body.queuePosID;
     console.log(req.body)
     inboundHash = req.body.hash;
-    
-    roboQRef.once('value', function (snapshot) {
-        console.log('snapshot - ', snapshot.val().hash)
-        console.log('inboundhash - ', inboundHash)
-        console.log('inboundhash 2 - ', JSON.stringify(inboundHash))
-        
-        
-        if (inboundHash == snapshot.val().hash) {
-            queueSize--
-            console.log("AAAAAAAAAA")
-            res.sendStatus(200)
+    roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
+        if (snapshot.val().pos == 1) {
+            console.log('snapshot - ', snapshot.val().hash)
+            console.log('inboundhash - ', inboundHash)
+            console.log('inboundhash 2 - ', JSON.stringify(inboundHash))
+            if (inboundHash == snapshot.val().hash) {
+                queueSize--
+                console.log("AAAAAAAAAA");
+                var removed = removeQueuer(queuePosID);
+                console.log("removed?" + removed)
+                res.sendStatus(200)
+            }
+            else {
+                console.log("bbbbbbbbb")
+                res.sendStatus(303).json({
+                    'error': 'invalid-hash'
+                })
+            }
         }
         else {
-            console.log("bbbbbbbbb")
-            res.sendStatus(303)
+            res.sendStatus(303).json({
+                'error': 'invalid-turn'
+            })
         }
     });
-    
 });
-
-
 app.listen(PORT);
 console.log('Running on http://localhost:' + PORT);
