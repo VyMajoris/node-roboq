@@ -60,7 +60,6 @@ app.get('/getTicket', function (req, res) {
     res.json({
         'queuePosID': queuePosID
     });
-    updateCurrentHash()
 });
 app.post('/forfeitTicket', function (req, res) {
     console.log(req.body.queuePos, req.body.hash)
