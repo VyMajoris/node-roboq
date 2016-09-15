@@ -69,7 +69,7 @@ function start() {
         started = true;
         hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
     }
-});
+};
 
 function refreshQueuersPositions() {
     roboQQueuersRef.once("value").then(function (snapshot) {
