@@ -25,30 +25,6 @@ var hash = "";
 var inboundHash;
 var started = false;
 
-function genHash() {
-    hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
-    return hash;
-}
-
-function saveHashQueuers() {
-    return roboQQueuersRef.push({
-        'hash': hash
-        , 'pos': queueSize
-    }).key
-}
-
-function updateCurrentHash() {
-    roboQRef.set({
-        'hash': genHash()
-        , 'queueSize': queueSize
-    })
-}
-roboQRef.on("value", function (snapshot) {
-    console.log("ON CHANGE", snapshot.val().hash);
-}, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-});
-
 function removeQueuer(queuePosID) {
     roboQQueuersRef.child(queuePosID).remove(onComplete)
     var onComplete = function (error) {
@@ -64,13 +40,6 @@ function removeQueuer(queuePosID) {
     return onComplete
 }
 
-function start() {
-    if (!started) {
-        started = true;
-        hash = crypto.createHash('sha1').update((new Date()).valueOf().toString() + Math.random().toString() + queueSize).digest('hex');
-    }
-};
-
 function refreshQueuersPositions() {
     roboQQueuersRef.once("value").then(function (snapshot) {
         snapshot.forEach(function (childSnapshot) {
@@ -80,14 +49,16 @@ function refreshQueuersPositions() {
     });
 }
 app.get('/getTicket', function (req, res) {
-    if (!started) {
-        start()
-    }
-    queueSize++;
+    var queueSize = roboQQueuersRef.once("value").then(function (snapshot) {
+        return snapshot.numChildren()
+    });
+    console.log("QUEUE SIZE::;")
+    console.log(queueSize)
+    var queuePosID = roboQQueuersRef.push({
+        'pos': queueSize + 1
+    }).key
     res.json({
-        'hash': hash
-        , 'queuePos': queueSize
-        , 'queuePosID': saveHashQueuers()
+        'queuePosID': queuePosID
     });
     updateCurrentHash()
 });
