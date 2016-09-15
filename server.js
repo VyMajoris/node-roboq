@@ -40,7 +40,7 @@ function saveHashQueuers() {
 
 
 function updateCurrentHash() {
-    roboQRef.put({
+    roboQRef.set({
         'hash': genHash()
         , 'queueSize': queueSize
     })
