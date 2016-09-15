@@ -31,10 +31,12 @@ function genHash() {
 }
 
 function saveHashQueuers() {
-    return roboQQueuersRef.push({
+    var test = roboQQueuersRef.push({
         'hash': hash
         , 'pos': queueSize
     })
+    console.log('TESTTT', test)
+    return test
 }
 
 function updateCurrentHash() {
