@@ -54,12 +54,14 @@ app.get('/getTicket', function (req, res) {
         console.log(snapshot.numChildren())
         var queuePosID = roboQQueuersRef.push({
             'pos': queueSize + 1
-        }).then(function (pushId) {
+        }, onCompleted(pushID))
+
+        function onCompleted(pushID) {
             console.log(`pushID`, pushID)
             res.json({
                 'queuePosID': pushID
             });
-        })
+        }
     });
 });
 app.post('/forfeitTicket', function (req, res) {
