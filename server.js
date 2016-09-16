@@ -52,7 +52,6 @@ app.get('/getTicket', function (req, res) {
     roboQQueuersRef.once("value").then(function (snapshot) {
         console.log("QUEUE SIZE::;")
         console.log(snapshot.numChildren())
-        console.log(`pushID`, pushID)
         res.json({
             'queuePosID': roboQQueuersRef.push({
                 'pos': queueSize + 1
