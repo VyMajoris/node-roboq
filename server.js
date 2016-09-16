@@ -70,25 +70,12 @@ app.post('/forfeitTicket', function (req, res) {
 app.post('/auth', function (req, res) {
     queuePosID = req.body.queuePosID;
     console.log(req.body)
-    inboundHash = req.body.hash;
     roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
         if (snapshot.val().pos == 1) {
-            console.log('snapshot - ', snapshot.val().hash)
-            console.log('inboundhash - ', inboundHash)
-            console.log('inboundhash 2 - ', JSON.stringify(inboundHash))
-            if (inboundHash == snapshot.val().hash) {
-                queueSize--
-                console.log("AAAAAAAAAA");
-                var removed = removeQueuer(queuePosID);
-                console.log("removed?" + removed)
-                res.sendStatus(200)
-            }
-            else {
-                console.log("bbbbbbbbb")
-                res.sendStatus(303).json({
-                    'error': 'invalid-hash'
-                })
-            }
+            console.log("AAAAAAAAAA");
+            var removed = removeQueuer(queuePosID);
+            console.log("removed?" + removed)
+            res.sendStatus(200)
         }
         else {
             res.sendStatus(303).json({
