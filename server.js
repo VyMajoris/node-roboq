@@ -52,10 +52,13 @@ app.get('/getTicket', function (req, res) {
     roboQQueuersRef.once("value").then(function (snapshot) {
         console.log("QUEUE SIZE::;")
         console.log(snapshot.numChildren())
+        var pushid = roboQQueuersRef.push({
+            'pos': snapshot.numChildren() + 1
+        })
+        console.log('pushid')
+        console.log(pushid)
         res.json({
-            'queuePosID': roboQQueuersRef.push({
-                'pos': snapshot.numChildren() + 1
-            })
+            'queuePosID': pushid
         });
     });
 });
