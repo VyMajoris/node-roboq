@@ -56,7 +56,7 @@ app.get('/getTicket', function (req, res) {
             'pos': snapshot.numChildren() + 1
         })
         console.log('pushid')
-        console.log(pushid)
+        console.log(pushid.key)
         res.json({
             'queuePosID': pushid
         });
