@@ -54,7 +54,7 @@ app.get('/getTicket', function (req, res) {
         console.log(snapshot.numChildren())
         res.json({
             'queuePosID': roboQQueuersRef.push({
-                'pos': queueSize + 1
+                'pos': snapshot.numChildren() + 1
             })
         });
     });
