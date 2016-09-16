@@ -50,15 +50,10 @@ function refreshQueuersPositions() {
 }
 app.get('/getTicket', function (req, res) {
     roboQQueuersRef.once("value").then(function (snapshot) {
-        console.log("QUEUE SIZE::;")
-        console.log(snapshot.numChildren())
-        var pushid = roboQQueuersRef.push({
-            'pos': snapshot.numChildren() + 1
-        })
-        console.log('pushid')
-        console.log(pushid.key)
         res.json({
-            'queuePosID': pushid
+            'queuePosID': roboQQueuersRef.push({
+                'pos': snapshot.numChildren() + 1
+            }).key
         });
     });
 });
