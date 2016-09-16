@@ -74,12 +74,14 @@ app.post('/auth', function (req, res) {
             console.log("AAAAAAAAAA");
             var removed = removeQueuer(queuePosID);
             console.log("removed?" + removed)
-            res.sendStatus(200)
+            res.status(200).send({
+                'success': 'auth-done'
+            });
         }
         else {
-            res.sendStatus(303).json({
+            res.status(303).send({
                 'error': 'invalid-turn'
-            })
+            });
         }
     });
 });
