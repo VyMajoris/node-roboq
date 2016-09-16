@@ -69,7 +69,7 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     console.log(req.body)
-    queuePosID = req.body.queuePosID;
+    queuePosID = req.body["queuePosID"];
     roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
         if (snapshot.val().pos == 1) {
             console.log("AAAAAAAAAA");
