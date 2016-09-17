@@ -22,6 +22,8 @@ function FCM(apiKey) {
 util.inherits(FCM, emitter);
 exports.FCM = FCM;
 FCM.prototype.send = function (packet, cb) {
+    console.log("PACKAGE")
+    console.log(packet)
     var self = this;
     if (cb) this.once('sent', cb);
     var operation = retry.operation();
