@@ -107,7 +107,7 @@ app.post('/auth', function (req, res) {
             var removed = removeQueuer(queuePosID);
             console.log("removed?" + removed)
             var message = FCMmessage;
-            message.to = snapshot.deviceID
+            message.to = snapshot.val().deviceID
             message.data.auth_status = true
             message.notification.title = "Bem Vindo!"
             message.notification.body = "Sua senha foi aceita com sucesso!"
@@ -119,7 +119,7 @@ app.post('/auth', function (req, res) {
         else {
             console.log("AUTH 4 ")
             var message = FCMmessage;
-            message.to = snapshot.deviceID
+            message.to = snapshot.val().deviceID
             message.data.auth_status = false
             message.notification.title = "Erro!"
             message.notification.body = "eeerroooo!"
