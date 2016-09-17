@@ -36,6 +36,8 @@ FCM.prototype.send = function (payload, CB) {
             };
             mFcmOptions.headers = headers;
             if (self.keepAlive) headers.Connection = 'keep-alive';
+            console.log("fcm OPTIONS")
+            console.log(mFcmOptions)
             var request = https.request(mFcmOptions, function (res) {
                 var data = '';
                 if (res.statusCode == 503) {
