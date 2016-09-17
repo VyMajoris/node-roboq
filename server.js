@@ -24,23 +24,15 @@ var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
 var hash = "";
 var inboundHash;
 var started = false;
-var FCMmessage = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to: 'registration_token'
-    , notification: {
-        title: 'Title of your push notification'
-        , body: 'Body of your push notification'
-    }
-    , data: { //you can send only notification or only data(or include both)
-        auth_status: 'my value'
-    }
-};
 
 function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     console.log("sendFCM")
     var options = {
         method: 'POST'
         , url: 'https://fcm.googleapis.com/fcm/send'
-        , headers: {, authorization: 'key=AIzaSyAbgxF3VkF8DM_oYKxsEDAwZ2nw8ZreNLk', 'content-type': 'application/json'
+        , headers: {
+            authorization: 'key=AIzaSyAbgxF3VkF8DM_oYKxsEDAwZ2nw8ZreNLk'
+            , 'content-type': 'application/json'
         }
         , body: {
             to: mDeviceID
