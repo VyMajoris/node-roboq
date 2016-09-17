@@ -18,7 +18,7 @@
     "qr-image": "*",
     "querystring": "^0.2.0",
     "redis": "^2.6.2",
-    "request": "*",
+    "request": "^2.74.0",
     "retry": "^0.10.0"
   }
 }

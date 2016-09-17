@@ -1,113 +1,91 @@
+var util = require('util');
 var https = require('https');
 var querystring = require('querystring');
+var emitter = require('events').EventEmitter;
 var retry = require('retry');
-var Promise = require('bluebird');
 
-function FCM(serverKey) {
-    if (serverKey) {
-        this.serverKey = serverKey;
+function FCM(apiKey) {
+    if (apiKey) {
+        this.apiKey = apiKey;
     }
     else {
-        throw Error('No serverKey is given.');
+        throw Error('No apiKey is given.');
     }
     this.fcmOptions = {
-        host: 'fcm.googleapis.com'
+        host: 'android.googleapis.com'
         , port: 443
         , path: '/fcm/send'
         , method: 'POST'
         , headers: {}
     };
 }
-//callback function must follow node standard (err, data) => {}
-FCM.prototype.send = function (payload, CB) {
+util.inherits(FCM, emitter);
+exports.FCM = FCM;
+FCM.prototype.send = function (packet, cb) {
     var self = this;
-    if (!CB) console.log("asCallback will do nothing");
-    return new Promise((resolve, reject) => {
-        var operation = retry.operation();
-        payload = JSON.stringify(payload);
-        //copying the fcmOptions object to avoid problems in parallel calls
-        var mFcmOptions = JSON.parse(JSON.stringify(self.fcmOptions));
-        operation.attempt(function (currentAttempt) {
-            var headers = {
-                'Host': mFcmOptions.host
-                , 'Authorization': 'key=' + self.serverKey
-                , 'Content-Type': 'application/json'
-                , 'Content-Length': new Buffer(payload).length
-            };
-            mFcmOptions.headers = headers;
-            if (self.keepAlive) headers.Connection = 'keep-alive';
-            console.log("fcm OPTIONS")
-            console.log(mFcmOptions)
-            var request = https.request(mFcmOptions, function (res) {
-                var data = '';
-                if (res.statusCode == 503) {
-                    // If the server is temporary unavailable, the C2DM spec requires that we implement exponential backoff
-                    // and respect any Retry-After header
-                    if (res.headers['retry-after']) {
-                        var retrySeconds = res.headers['retry-after'] * 1; // force number
-                        if (isNaN(retrySeconds)) {
-                            // The Retry-After header is a HTTP-date, try to parse it
-                            retrySeconds = new Date(res.headers['retry-after']).getTime() - new Date().getTime();
-                        }
-                        if (!isNaN(retrySeconds) && retrySeconds > 0) {
-                            operation._timeouts['minTimeout'] = retrySeconds;
-                        }
+    if (cb) this.once('sent', cb);
+    var operation = retry.operation();
+    operation.attempt(function (currentAttempt) {
+        var postData = querystring.stringify(packet);
+        var headers = {
+            'Host': self.fcmOptions.host
+            , 'Authorization': 'key=' + self.apiKey
+            , 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            , 'Content-length': postData.length
+        };
+        self.fcmOptions.headers = headers;
+        if (self.keepAlive) headers.Connection = 'keep-alive';
+        var request = https.request(self.fcmOptions, function (res) {
+            var data = '';
+            if (res.statusCode == 503) {
+                // If the server is temporary unavailable, the C2DM spec requires that we implement exponential backoff
+                // and respect any Retry-After header
+                if (res.headers['retry-after']) {
+                    var retrySeconds = res.headers['retry-after'] * 1; // force number
+                    if (isNaN(retrySeconds)) {
+                        // The Retry-After header is a HTTP-date, try to parse it
+                        retrySeconds = new Date(res.headers['retry-after']).getTime() - new Date().getTime();
                     }
-                    if (!operation.retry('TemporaryUnavailable')) {
-                        CB(operation.mainError(), null);
+                    if (!isNaN(retrySeconds) && retrySeconds > 0) {
+                        operation._timeouts['minTimeout'] = retrySeconds;
                     }
-                    // Ignore all subsequent events for this request
+                }
+                if (!operation.retry('TemporaryUnavailable')) {
+                    self.emit('sent', operation.mainError(), null);
+                }
+                // Ignore all subsequent events for this request
+                return;
+            }
+
+            function respond() {
+                var error = null
+                    , id = null;
+                if (data.indexOf('Error=') === 0) {
+                    error = data.substring(6).trim();
+                }
+                else if (data.indexOf('id=') === 0) {
+                    id = data.substring(3).trim();
+                }
+                else {
+                    // No id nor error?
+                    error = 'InvalidServerResponse';
+                }
+                // Only retry if error is QuotaExceeded or DeviceQuotaExceeded
+                if (operation.retry(['QuotaExceeded', 'DeviceQuotaExceeded', 'InvalidServerResponse'].indexOf(error) >= 0 ? error : null)) {
                     return;
                 }
-
-                function respond() {
-                    console.log("dataaaa")
-                    console.log(data)
-                    var error = null
-                        , id = null
-                        , parsed_data = null;
-                    if (data.indexOf('\"multicast_id\":') > -1) {
-                        //handle multicast_id, send by devive token
-                        anyFail = ((JSON.parse(data)).failure > 0);
-                        if (anyFail) {
-                            error = data.substring(0).trim();
-                        }
-                        anySuccess = ((JSON.parse(data)).success > 0);
-                        if (anySuccess) {
-                            id = data.substring(0).trim();
-                        }
-                    }
-                    else if (data.indexOf('\"message_id\":') > -1) {
-                        //handle topics send
-                        id = data;
-                    }
-                    else if (data.indexOf('\"error\":') > -1) {
-                        error = data;
-                    }
-                    else if (data.indexOf('Unauthorized') > -1) {
-                        error = 'NotAuthorizedError';
-                    }
-                    else {
-                        error = 'InvalidServerResponse';
-                    }
-                    // Only retry if error is QuotaExceeded or DeviceQuotaExceeded
-                    if (operation.retry(currentAttempt <= 3 && ['QuotaExceeded', 'DeviceQuotaExceeded', 'InvalidServerResponse'].indexOf(error) >= 0 ? error : null)) {
-                        return;
-                    }
-                    // Success, return message id (without id=)
-                    resolve(id);
-                }
-                res.on('data', function (chunk) {
-                    data += chunk;
-                });
-                res.on('end', respond);
-                res.on('close', respond);
+                // Success, return message id (without id=)
+                self.emit('sent', error, id);
+            }
+            res.on('data', function (chunk) {
+                data += chunk;
             });
-            request.on('error', function (error) {
-                reject(error);
-            });
-            request.end(payload);
+            res.on('end', respond);
+            res.on('close', respond);
         });
-    }).asCallback(CB);
+        request.on('error', function (error) {
+            self.emit('sent', error, null);
+        });
+        request.end(postData);
+    });
 };
-module.exports = FCM;
