@@ -42,7 +42,7 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     var message = {
         to: mDeviceID
         , data: {
-            auth_status = mAuth_status
+            auth_status: mAuth_status
         }
         , notification: {
             title: mTitle
