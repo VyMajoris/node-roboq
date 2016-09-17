@@ -39,6 +39,7 @@ var FCMmessage = { //this may vary according to the message type (single recipie
 
 function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     console.log("sendFCM")
+    console.log(message)
     var message = {
         to: mDeviceID
         , data: {
@@ -105,13 +106,7 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     var deviceID = req.body.deviceID;
-    console.log(req.body)
-    console.log("AUTH 1 ")
-    console.log(deviceID)
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
-        console.log("SNAAAP")
-        console.log(snapshot.val())
-        console.log("AUTH 2  ")
         if (snapshot.val() != null) {
             if (snapshot.val().pos == 1) {
                 console.log("AUTH 3 ")
