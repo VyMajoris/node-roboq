@@ -5,8 +5,6 @@ const request = require('request');
 const firebase = require('firebase');
 const express = require('express');
 var bodyParser = require('body-parser');
-var FCM = require('fcm').FCM;
-var fcm = new FCM("AIzaSyAbgxF3VkF8DM_oYKxsEDAwZ2nw8ZreNLk");
 var queueSize = 0
 var app = express();
 app.use(bodyParser.urlencoded({
@@ -39,24 +37,26 @@ var FCMmessage = { //this may vary according to the message type (single recipie
 
 function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     console.log("sendFCM")
-    var message = {
-        to: mDeviceID
-        , data: {
-            auth_status: mAuth_status
+    var options = {
+        method: 'POST'
+        , url: 'https://fcm.googleapis.com/fcm/send'
+        , headers: {, authorization: 'key=AIzaSyAbgxF3VkF8DM_oYKxsEDAwZ2nw8ZreNLk', 'content-type': 'application/json'
         }
-        , notification: {
-            title: mTitle
-            , body: mBody
+        , body: {
+            to: mDeviceID
+            , data: {
+                auth_status: mAuth_status
+            }
+            , notification: {
+                title: mTitle
+                , body: mBody
+            }
         }
-    }
-    console.log(message)
-    fcm.send(message, function (err, messageId) {
-        if (err) {
-            console.log("Something has gone wrong!");
-        }
-        else {
-            console.log("Sent with message ID: ", messageId);
-        }
+        , json: true
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        console.log(body);
     });
 }
 
