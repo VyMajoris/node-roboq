@@ -39,7 +39,6 @@ var FCMmessage = { //this may vary according to the message type (single recipie
 
 function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     console.log("sendFCM")
-    console.log(message)
     var message = {
         to: mDeviceID
         , data: {
@@ -50,6 +49,7 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
             , body: mBody
         }
     }
+    console.log(message)
     fcm.send(message, function (err, messageId) {
         if (err) {
             console.log("Something has gone wrong!");
