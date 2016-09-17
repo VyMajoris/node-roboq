@@ -59,6 +59,8 @@ FCM.prototype.send = function (payload, CB) {
                 }
 
                 function respond() {
+                    console.log("dataaaa")
+                    console.log(data)
                     var error = null
                         , id = null
                         , parsed_data = null;
