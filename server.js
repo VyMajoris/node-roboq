@@ -46,6 +46,7 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
         }
         , json: true
     };
+    console.log(options)
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
         console.log(body);
@@ -110,7 +111,7 @@ app.post('/auth', function (req, res) {
             }
             else {
                 console.log("AUTH 4 ")
-                sendFCM(deviceID, false, "Erro!", "Ainda não chegoua  sua vez!")
+                sendFCM(deviceID, false, "Erro!", "Ainda não chegou a sua vez!")
                 res.status(303).send({
                     'error': 'invalid-turn'
                 });
