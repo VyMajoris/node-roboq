@@ -12,6 +12,7 @@
     "body-parser": "*",
     "crypto": "0.0.3",
     "express": "^4.13.3",
+    "fcm": "^1.0.3",
     "firebase": "*",
     "https": "^1.0.0",
     "nodemon": "^1.10.2",
