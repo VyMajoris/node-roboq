@@ -11,6 +11,7 @@
     "body-parser": "*",
     "crypto": "0.0.3",
     "express": "^4.13.3",
+    "fcm-push": "^1.0.7",
     "firebase": "*",
     "nodemon": "^1.10.2",
     "qr-image": "*",
