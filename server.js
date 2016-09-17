@@ -79,8 +79,8 @@ app.post('/getTicket', function (req, res) {
         res.json({
             'queuePosID': roboQQueuersRef.push({
                 'pos': snapshot.numChildren() + 1
+                , 'deviceID': req.body.deviceID
             }).key
-            , 'deviceID': req.body.deviceID
         });
     });
 });
