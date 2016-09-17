@@ -97,8 +97,11 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     var queuePosID = req.body.queuePosID;
+    console.log("AUTH 1 ")
     roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
+        console.log("AUTH 2  ")
         if (snapshot.val().pos == 1) {
+            console.log("AUTH 3 ")
             console.log("AAAAAAAAAA");
             var removed = removeQueuer(queuePosID);
             console.log("removed?" + removed)
@@ -113,6 +116,7 @@ app.post('/auth', function (req, res) {
             });
         }
         else {
+            console.log("AUTH 4 ")
             var message = FCMmessage;
             message.to = snapshot.deviceID
             message.data.auth_status = false
