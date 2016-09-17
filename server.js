@@ -46,7 +46,7 @@ function sendFCM(message) {
             console.log("____________");
         }
         else {
-            console.log("Successfully sent with response: ", response);
+            console.log("Successfully");
         }
     });
 }
