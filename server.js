@@ -105,6 +105,7 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     var queuePosID = req.body.queuePosID;
+    var deviceID = req.body.deviceID;
     console.log(req.body)
     console.log("AUTH 1 ")
     roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
@@ -130,7 +131,7 @@ app.post('/auth', function (req, res) {
         }
         else {
             console.log("AUTH 5 ")
-            sendFCM(snapshot.val().deviceID, false, "Erro!", "Você não está nesta fila!")
+            sendFCM(deviceID, false, "Erro!", "Você não está nesta fila!")
             res.status(303).send({
                 'error': 'invalid-queue'
             });
