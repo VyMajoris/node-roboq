@@ -28,13 +28,9 @@ var inboundHash;
 var started = false;
 var FCMmessage = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
     to: 'registration_token'
-    , collapse_key: 'your_collapse_key'
     , notification: {
         title: 'Title of your push notification'
         , body: 'Body of your push notification'
-    }
-    , data: { //you can send only notification or only data(or include both)
-        auth_status: 'my value'
     }
 };
 
@@ -123,6 +119,8 @@ app.post('/auth', function (req, res) {
             message.data.auth_status = false
             message.notification.title = "Erro!"
             message.notification.body = "eeerroooo!"
+            console.log(snapshot.val().deviceID)
+            console.log(message)
             sendFCM(message)
             res.status(303).send({
                 'error': 'invalid-turn'
