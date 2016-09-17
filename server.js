@@ -39,7 +39,6 @@ var FCMmessage = { //this may vary according to the message type (single recipie
 
 function sendFCM(message) {
     console.log("sendFCM")
-    console.log(message)
     fcm.send(message, function (err, messageId) {
         if (err) {
             console.log("Something has gone wrong!");
