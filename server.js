@@ -107,6 +107,7 @@ app.post('/auth', function (req, res) {
     var deviceID = req.body.deviceID;
     console.log(req.body)
     console.log("AUTH 1 ")
+    console.log(deviceID)
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         console.log("SNAAAP")
         console.log(snapshot.val())
