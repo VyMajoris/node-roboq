@@ -39,14 +39,14 @@ var FCMmessage = { //this may vary according to the message type (single recipie
 };
 
 function sendFCM(message) {
-    fcm.send(message, function (err, response) {
+    console.log("sendFCM")
+    console.log(message)
+    fcm.send(message, function (err, messageId) {
         if (err) {
-            console.log("____________");
-            console.log(err)
-            console.log("____________");
+            console.log("Something has gone wrong!");
         }
         else {
-            console.log("Successfully");
+            console.log("Sent with message ID: ", messageId);
         }
     });
 }
