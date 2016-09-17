@@ -5,6 +5,8 @@ const request = require('request');
 const firebase = require('firebase');
 const express = require('express');
 var bodyParser = require('body-parser')
+var FCM = require('fcm-node');
+var fcm = new FCM("AIzaSyAbgxF3VkF8DM_oYKxsEDAwZ2nw8ZreNLk");
 var queueSize = 0
 var app = express();
 app.use(bodyParser.urlencoded({
@@ -24,6 +26,28 @@ var roboQQueuersRef = firebase.database().ref('estbXYZ/queue/queuers')
 var hash = "";
 var inboundHash;
 var started = false;
+var FCMmessage = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+    to: 'registration_token'
+    , collapse_key: 'your_collapse_key'
+    , notification: {
+        title: 'Title of your push notification'
+        , body: 'Body of your push notification'
+    }
+    , data: { //you can send only notification or only data(or include both)
+        auth_status: 'my value'
+    }
+};
+
+function sendFCM(message) {
+    fcm.send(message, function (err, response) {
+        if (err) {
+            console.log("Something has gone wrong!");
+        }
+        else {
+            console.log("Successfully sent with response: ", response);
+        }
+    });
+}
 
 function removeQueuer(queuePosID) {
     roboQQueuersRef.child(queuePosID).remove(onComplete)
@@ -48,12 +72,14 @@ function refreshQueuersPositions() {
         });
     });
 }
-app.get('/getTicket', function (req, res) {
+app.post('/getTicket', function (req, res) {
+    console.log(req.body.deviceID)
     roboQQueuersRef.once("value").then(function (snapshot) {
         res.json({
             'queuePosID': roboQQueuersRef.push({
                 'pos': snapshot.numChildren() + 1
             }).key
+            , 'deviceID': req.body.deviceID
         });
     });
 });
@@ -74,11 +100,23 @@ app.post('/auth', function (req, res) {
             console.log("AAAAAAAAAA");
             var removed = removeQueuer(queuePosID);
             console.log("removed?" + removed)
+            var message = FCMmessage;
+            message.to = snapshot.deviceID
+            message.data.auth_status = true
+            message.notification.title = "Bem Vindo!"
+            message.notification.body = "Sua senha foi aceita com sucesso!"
+            sendFCM(message)
             res.status(200).send({
                 'success': 'auth-done'
             });
         }
         else {
+            var message = FCMmessage;
+            message.to = snapshot.deviceID
+            message.data.auth_status = false
+            message.notification.title = "Erro!"
+            message.notification.body = "eeerroooo!"
+            sendFCM(message)
             res.status(303).send({
                 'error': 'invalid-turn'
             });
