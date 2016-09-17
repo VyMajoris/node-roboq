@@ -84,6 +84,7 @@ FCM.prototype.send = function (payload, CB) {
                         error = 'NotAuthorizedError';
                     }
                     else {
+                        console.log(data)
                         error = 'InvalidServerResponse';
                     }
                     // Only retry if error is QuotaExceeded or DeviceQuotaExceeded
