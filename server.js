@@ -98,6 +98,8 @@ app.post('/auth', function (req, res) {
     console.log(req.body)
     console.log("AUTH 1 ")
     roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
+        console.log("SNAAAP")
+        console.log(snapshot.val())
         console.log("AUTH 2  ")
         if (snapshot.val().pos == 1) {
             console.log("AUTH 3 ")
