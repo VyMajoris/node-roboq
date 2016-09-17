@@ -37,8 +37,18 @@ var FCMmessage = { //this may vary according to the message type (single recipie
     }
 };
 
-function sendFCM(message) {
+function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     console.log("sendFCM")
+    var message = {
+        to: mDeviceID
+        data: {
+            auth_status = mAuth_status
+        }
+        , notification: {
+            title: mTitle
+            , body: mBody
+        }
+    }
     fcm.send(message, function (err, messageId) {
         if (err) {
             console.log("Something has gone wrong!");
@@ -101,33 +111,28 @@ app.post('/auth', function (req, res) {
         console.log("SNAAAP")
         console.log(snapshot.val())
         console.log("AUTH 2  ")
-        if (snapshot.val().pos == 1) {
-            console.log("AUTH 3 ")
-            console.log("AAAAAAAAAA");
-            var removed = removeQueuer(queuePosID);
-            console.log("removed?" + removed)
-            var message = FCMmessage;
-            message.to = snapshot.val().deviceID
-            message.data.auth_status = true
-            message.notification.title = "Bem Vindo!"
-            message.notification.body = "Sua senha foi aceita com sucesso!"
-            sendFCM(message)
-            res.status(200).send({
-                'success': 'auth-done'
-            });
+        if (snapshot.val() != null) {
+            if (snapshot.val().pos == 1) {
+                console.log("AUTH 3 ")
+                removeQueuer(queuePosID);
+                sendFCM(snapshot.val().deviceID, true, "Bem vindo", "Sua senha foi aceita")
+                res.status(200).send({
+                    'success': 'auth-done'
+                });
+            }
+            else {
+                console.log("AUTH 4 ")
+                sendFCM(snapshot.val().deviceID, false, "Erro!", "Ainda não chegoua  sua vez!")
+                res.status(303).send({
+                    'error': 'invalid-turn'
+                });
+            }
         }
         else {
-            console.log("AUTH 4 ")
-            var message = FCMmessage;
-            message.to = snapshot.val().deviceID
-            message.data.auth_status = false
-            message.notification.title = "Erro!"
-            message.notification.body = "eeerroooo!"
-            console.log(message)
-            console.log(snapshot.val().deviceID)
-            sendFCM(message)
+            console.log("AUTH 5 ")
+            sendFCM(snapshot.val().deviceID, false, "Erro!", "Você não está nesta fila!")
             res.status(303).send({
-                'error': 'invalid-turn'
+                'error': 'invalid-queue'
             });
         }
     });
