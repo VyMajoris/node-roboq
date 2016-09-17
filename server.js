@@ -32,6 +32,9 @@ var FCMmessage = { //this may vary according to the message type (single recipie
         title: 'Title of your push notification'
         , body: 'Body of your push notification'
     }
+    , data: { //you can send only notification or only data(or include both)
+        auth_status: 'my value'
+    }
 };
 
 function sendFCM(message) {
@@ -119,8 +122,8 @@ app.post('/auth', function (req, res) {
             message.data.auth_status = false
             message.notification.title = "Erro!"
             message.notification.body = "eeerroooo!"
-            console.log(snapshot.val().deviceID)
             console.log(message)
+            console.log(snapshot.val().deviceID)
             sendFCM(message)
             res.status(303).send({
                 'error': 'invalid-turn'
