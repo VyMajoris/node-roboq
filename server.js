@@ -59,8 +59,8 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
     });
 }
 
-function removeQueuer(queuePosID) {
-    roboQQueuersRef.child(queuePosID).remove(onComplete)
+function removeQueuer(deviceID) {
+    roboQQueuersRef.child(deviceID).remove(onComplete)
     var onComplete = function (error) {
         if (error) {
             console.log("REMOVING FAIL")
@@ -85,12 +85,12 @@ function refreshQueuersPositions() {
 app.post('/getTicket', function (req, res) {
     console.log(req.body.deviceID)
     roboQQueuersRef.once("value").then(function (snapshot) {
-        res.json({
-            'queuePosID': roboQQueuersRef.push({
-                'pos': snapshot.numChildren() + 1
-                , 'deviceID': req.body.deviceID
-            }).key
-        });
+        roboQQueuersRef.child(req.body.deviceID).set({
+            'pos': snapshot.numChildren() + 1
+        })
+        res.status(200).send({
+            'success': 'ticket-taken'
+        })
     });
 });
 app.post('/forfeitTicket', function (req, res) {
@@ -104,26 +104,25 @@ app.post('/forfeitTicket', function (req, res) {
     });
 });
 app.post('/auth', function (req, res) {
-    var queuePosID = req.body.queuePosID;
     var deviceID = req.body.deviceID;
     console.log(req.body)
     console.log("AUTH 1 ")
-    roboQQueuersRef.child(queuePosID).once('value', function (snapshot) {
+    roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         console.log("SNAAAP")
         console.log(snapshot.val())
         console.log("AUTH 2  ")
         if (snapshot.val() != null) {
             if (snapshot.val().pos == 1) {
                 console.log("AUTH 3 ")
-                removeQueuer(queuePosID);
-                sendFCM(snapshot.val().deviceID, true, "Bem vindo", "Sua senha foi aceita")
+                removeQueuer(deviceID);
+                sendFCM(deviceID, true, "Bem vindo", "Sua senha foi aceita")
                 res.status(200).send({
                     'success': 'auth-done'
                 });
             }
             else {
                 console.log("AUTH 4 ")
-                sendFCM(snapshot.val().deviceID, false, "Erro!", "Ainda não chegoua  sua vez!")
+                sendFCM(deviceID, false, "Erro!", "Ainda não chegoua  sua vez!")
                 res.status(303).send({
                     'error': 'invalid-turn'
                 });
