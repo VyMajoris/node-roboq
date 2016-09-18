@@ -57,21 +57,21 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
 
 function removeQueuer(deviceID) {
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
-        var pos = snapshot.val().pos;
         snapshot.ref.remove().then(function () {
             console.log("Remove succeeded.")
+            var pos = snapshot.val().pos;
+            roboQQueuersRef.once("value").then(function (snapshot) {
+                snapshot.forEach(function (childSnapshot) {
+                    var childPos = childSnapshot.val().po
+                    if (childPos > pos) {
+                        childSnapshot.ref.set({
+                            'pos': childPos - 1
+                        })
+                    }
+                });
+            });
         }).catch(function (error) {
             console.log("Remove failed: " + error.message)
-        });
-        roboQQueuersRef.once("value").then(function (snapshot) {
-            snapshot.forEach(function (childSnapshot) {
-                var childPos = childSnapshot.val().po
-                if (childPos > pos) {
-                    childSnapshot.ref.set({
-                        'pos': childPos - 1
-                    })
-                }
-            });
         });
     })
 }
