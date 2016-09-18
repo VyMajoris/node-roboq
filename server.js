@@ -74,7 +74,6 @@ function removeQueuer(deviceID) {
             });
         });
     })
-    return onComplete
 }
 
 function refreshQueuersPositions() {
