@@ -46,6 +46,7 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
         }
         , json: true
     };
+    console.log("_______________________________________")
     console.log(options)
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
