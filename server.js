@@ -56,26 +56,30 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
 }
 
 function removeQueuer(deviceID) {
-    roboQQueuersRef.child(deviceID).remove(onComplete)
-    var onComplete = function (error) {
-        if (error) {
-            console.log("REMOVING FAIL")
-            return false
-        }
-        else {
-            console.log("REMOVING DONE")
-            return true
-        }
-    };
+    roboQQueuersRef.child(deviceID).once(value, function (snapshot) {
+        var pos = snapshot.val().pos;
+        snapshot.ref.remove().then(function () {
+            console.log("Remove succeeded.")
+        }).catch(function (error) {
+            console.log("Remove failed: " + error.message)
+        });
+        roboQQueuersRef.once("value").then(function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                var childPos = childSnapshot.val().po
+                if (childPos > pos) {
+                    childSnapshot.ref.set({
+                        'pos': childPos - 1
+                    })
+                }
+            });
+        });
+    })
     return onComplete
 }
 
 function refreshQueuersPositions() {
     roboQQueuersRef.once("value").then(function (snapshot) {
-        snapshot.forEach(function (childSnapshot) {
-            var key = childSnapshot.key;
-            var childData = childSnapshot.val();
-        });
+        snapshot.forEach(function (childSnapshot) {});
     });
 }
 app.post('/getTicket', function (req, res) {
@@ -90,14 +94,11 @@ app.post('/getTicket', function (req, res) {
     });
 });
 app.post('/forfeitTicket', function (req, res) {
-    console.log(req.body.queuePos, req.body.hash)
-    removeHash();
-    queueSize--
-    refreshQueuersPositions().
-    res.json({
-        'hash': hash
-        , 'queuePos': queueSize
-    });
+    console.log(req.body.deviceID);
+    removeQueuer(req.body.deviceID);
+    res.status(200).send({
+        'success': 'ticket-forfeited'
+    })
 });
 app.post('/auth', function (req, res) {
     var deviceID = req.body.deviceID;
