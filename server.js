@@ -56,7 +56,7 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
 }
 
 function removeQueuer(deviceID) {
-    roboQQueuersRef.child(deviceID).once(value, function (snapshot) {
+    roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         var pos = snapshot.val().pos;
         snapshot.ref.remove().then(function () {
             console.log("Remove succeeded.")
