@@ -101,6 +101,8 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     var deviceID = req.body.deviceID;
+    console.log("Auth")
+    console.log(deviceID)
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         if (snapshot.val() != null) {
             if (snapshot.val().pos == 1) {
