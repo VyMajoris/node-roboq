@@ -62,7 +62,7 @@ function removeQueuer(deviceID) {
             var pos = snapshot.val().pos;
             roboQQueuersRef.once("value").then(function (snapshot) {
                 snapshot.forEach(function (childSnapshot) {
-                    var childPos = childSnapshot.val().po
+                    var childPos = childSnapshot.val().pos
                     if (childPos > pos) {
                         childSnapshot.ref.set({
                             'pos': childPos - 1
