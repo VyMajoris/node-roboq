@@ -26,7 +26,6 @@ var inboundHash;
 var started = false;
 
 function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
-    console.log("sendFCM")
     var options = {
         method: 'POST'
         , url: 'https://fcm.googleapis.com/fcm/send'
@@ -46,8 +45,6 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
         }
         , json: true
     };
-    console.log("_______________________________________")
-    console.log(options)
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
         console.log("ERROR FCM >>>")
@@ -58,7 +55,6 @@ function sendFCM(mDeviceID, mAuth_status, mTitle, mBody) {
 function removeQueuer(deviceID) {
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         snapshot.ref.remove().then(function () {
-            console.log("Remove succeeded.")
             var pos = snapshot.val().pos;
             roboQQueuersRef.once("value").then(function (snapshot) {
                 snapshot.forEach(function (childSnapshot) {
@@ -82,7 +78,6 @@ function refreshQueuersPositions() {
     });
 }
 app.post('/getTicket', function (req, res) {
-    console.log(req.body.deviceID)
     roboQQueuersRef.once("value").then(function (snapshot) {
         roboQQueuersRef.child(req.body.deviceID).set({
             'pos': snapshot.numChildren() + 1
@@ -93,7 +88,6 @@ app.post('/getTicket', function (req, res) {
     });
 });
 app.post('/forfeitTicket', function (req, res) {
-    console.log(req.body.deviceID);
     removeQueuer(req.body.deviceID);
     res.status(200).send({
         'success': 'ticket-forfeited'
@@ -101,12 +95,9 @@ app.post('/forfeitTicket', function (req, res) {
 });
 app.post('/auth', function (req, res) {
     var deviceID = req.body.deviceID;
-    console.log("Auth")
-    console.log(deviceID)
     roboQQueuersRef.child(deviceID).once('value', function (snapshot) {
         if (snapshot.val() != null) {
             if (snapshot.val().pos == 1) {
-                console.log("AUTH 3 ")
                 removeQueuer(deviceID);
                 sendFCM(deviceID, true, "Bem vindo", "Sua senha foi aceita")
                 res.status(200).send({
@@ -114,7 +105,6 @@ app.post('/auth', function (req, res) {
                 });
             }
             else {
-                console.log("AUTH 4 ")
                 sendFCM(deviceID, false, "Erro!", "Ainda não chegou a sua vez!")
                 res.status(303).send({
                     'error': 'invalid-turn'
@@ -122,7 +112,6 @@ app.post('/auth', function (req, res) {
             }
         }
         else {
-            console.log("AUTH 5 ")
             sendFCM(deviceID, false, "Erro!", "Você não está nesta fila!")
             res.status(303).send({
                 'error': 'invalid-queue'
